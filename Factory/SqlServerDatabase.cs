@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Report_NetCore.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,16 +41,28 @@ namespace Report_NetCore.Factory
 
         public string GetLimitRowResultSql(string sql , int skip, int take, string orderByName, string orderByMode = "desc")
         {
+            if (sql.IsStoredProcedure())
+            {
+                return sql;
+            }
             return $"{sql} order by {orderByName} {orderByMode} OFFSET {skip} ROWS  FETCH NEXT {take} ROWS ONLY";
         }
 
         public string GetOneRowResultSql(string sql)
         {
+            if (sql.IsStoredProcedure())
+            {
+                return sql;
+            }
             return $"select top 1 * from ({sql}) as a ";
         }
 
         public string GetRowCountSql(string sql)
         {
+            if (sql.IsStoredProcedure())
+            {
+                return $"select 100";
+            }
             return $"select count(*) from (select * from ({sql}) as b) as a";
         }
     }
